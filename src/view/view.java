@@ -1,293 +1,335 @@
 package view;
 
-import controller.UltilityController;
-import controller.dataController;
-import model.Student;
-import model.StudentRegister;
-import model.Subject;
+import controller.ControllerUtility;
+import controller.DataController;
+import model.Book;
+import model.BookReaderManagement;
+import model.Reader;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class view {
     public static void main(String[] args) {
-
         int choice = 0;
+        var booksFileName = "BOOK.DAT";
+        var controller = new DataController();
+        var books = new ArrayList<Book>();
+        var isBookChecked = false;
 
-        var studentFile = "STUDENT.DAT";
-        var controller = new dataController();
-        var students = new ArrayList<Student>();
+        var readersFileName = "READER.DAT";
+        var readers = new ArrayList<Reader>();
+        var isReaderChecked = false;
 
-        var subjectFile = "SUBJECT.DAT";
-        var subjects = new ArrayList<Subject>();
+        var BrmsFileName = "BRM.DAT";
+        var brms = new ArrayList<BookReaderManagement>();
 
-        var studentRegisterFile = "SR.DAT";
-        var studentRegisters = new ArrayList<StudentRegister>();
-        var ultilityController= new UltilityController();
+        var Utility = new ControllerUtility();
+
 
         Scanner scanner = new Scanner(System.in);
 
         do {
-            System.out.println("_________________MENU_______________");
-            System.out.println("1. Add a student to list: ");
-            System.out.println("2. Show list of students: ");
-            System.out.println("3. Add a subject to list: ");
-            System.out.println("4. Show list of subjects: ");
-            System.out.println("5. Do regist for student: ");
-            System.out.println("0. Exit");
+            System.out.println("_______________MENU_______________");
+            System.out.println("1. Thêm một đầu sách vào file.");
+            System.out.println("2. Hiển thị danh sách các sách có trong file.");
+            System.out.println("3. Thêm một bạn đọc vào file");
+            System.out.println("4. Hiển thị danh sách bạn đọc có trong file");
+            System.out.println("5. Lập thông tin quản lý mượn:");
+            System.out.println("6. Sắp xếp");
+            System.out.println("7. Tìm kiếm bạn đọc:");
+            System.out.println("0. Thoát khỏi ứng dụng.");
+            System.out.println("Bạn chọn ? ");
 
             choice = scanner.nextInt();
-            scanner.nextLine(); // đọc bỏ dòng chứa lựa chọn
+            scanner.nextLine();// doc bo dong chua lua chon
 
             switch (choice) {
                 case 0:
-                    System.out.println("Thank you for using our program!");
+                    System.out.println("Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!");
                     break;
+
                 case 1:
-                    System.out.println("Please fill Student's information");
+                    if (!isBookChecked) {
+                        checkBookID(controller, booksFileName);
+                        isBookChecked = true;
+                    }
+                    String[] specs = {"Science", "Art", "Economic", "IT"};
+                    String bookName, author, spec;
+                    int year, quan, sp;
+                    System.out.println("Nhập tên sách: ");
+                    bookName = scanner.nextLine();
 
-                    String fullname, address, phonenumber;
-                    System.out.println("Please fill name: ");
-                    fullname = scanner.nextLine();
+                    System.out.println("Nhập tên tác giả: ");
+                    author = scanner.nextLine();
 
-                    System.out.println("Please fill address: ");
-                    address = scanner.nextLine();
-
-                    System.out.println("Please fill Phonenumber: ");
-                    String regex = "^\\d{3}-\\d{3}-\\d{4}$";
-                    Pattern pattern;
-                    Matcher matcher;
                     do {
-                        phonenumber = scanner.nextLine();
-                        pattern = Pattern.compile(regex);
-                        matcher = pattern.matcher(phonenumber);
-                        if (matcher.find()) {
-                            break;
-                        } else {
-                            System.out.println("Please fill again!");
-                        }
-                    } while (true);
+                        System.out.println("Nhập thể loại sách: ");
+                        System.out.println("1. Science.\n2. Art.\n3. Economic.\n4. IT.");
+                        sp = scanner.nextInt();
+                    } while (sp < 1 || sp > 4);
 
-                    Student student = new Student(0, fullname, address, phonenumber);
-                    controller.writeStudenttoFile(student, studentFile);
+                    spec = specs[sp - 1];
+
+                    System.out.println("Nhập năm xuất bản: ");
+                    year = scanner.nextInt();
+
+                    System.out.println("Nhập số lượng: ");
+                    quan = scanner.nextInt();
+                    //public Book(int bookID, String bookName, String author,
+                    //                String specialization, int publishYear, int quantity)
+                    Book book = new Book(0, bookName, author, spec, year, quan);
+                    controller.writeBookToFile(book, booksFileName);
                     break;
+
                 case 2:
-                    students = controller.readStudentFromFile(studentFile);
-                    showInfoStudent(students);
+                    books = controller.readBooksFromFile(booksFileName);
+                    showBookInfo(books);
                     break;
                 case 3:
-                    //int subjectID, String subjectName, int totalLesson, String subjectType
-                    //        printWriter.println(subject.getSubjectID() + "|" + subject.getSubjectName() + "|" +
-                    //                subject.getTotalLesson() + "|" + subject.getSubjectType());
-                    System.out.println("Please fill subject's information:");
+//                    reader.getReaderID() + "|" + reader.getFullName() + "|"
+//                        + reader.getAddress() + "|" + reader.getPhoneNumber()
 
-                    String subjectName, subjectType;
-                    int total, st;
+                    if (!isBookChecked) {
+                        checkReaderID(controller, readersFileName);
+                        isBookChecked = true;
+                    }
 
-                    System.out.println("Please fill subject's name:");
-                    subjectName = scanner.nextLine();
+                    String fullname, address, phonenumber;
 
-                    System.out.println("Please fill total of lessons: ");
-                    total = scanner.nextInt();
+                    System.out.println("Nhập tên của reader:");
+                    fullname = scanner.nextLine();
 
-                    String[] subjectTypes = {"General", "Specializations base", "Compulsory majors",
-                            "Specialization options"};
+                    System.out.println("Nhập địa chỉ của reader: ");
+                    address = scanner.nextLine();
+
+
                     do {
-                        System.out.println("Please fill your type of Subject: ");
-                        System.out.println("1.General\n2.Specializations base\n" +
-                                "3.Compulsory majors\n4.Specialization options");
-                        st = scanner.nextInt();
-                    } while (st < 1 || st > 4);
-                    subjectType = subjectTypes[st - 1];
-                    Subject subject = new Subject(0, subjectName, total, subjectType);
-                    controller.writeSubjecttoFile(subject, subjectFile);
+                        System.out.println("Nhập số điện thoại của reader:"); // có 10 số
+                        phonenumber = scanner.nextLine();
+                    } while (phonenumber.matches("\\d{10}"));
+                    //int readerID, String fullName, String address, String phoneNumber
+                    Reader reader = new Reader(0, fullname, address, phonenumber);
+                    controller.writeReaderToFile(reader, readersFileName);
                     break;
                 case 4:
-                    subjects = controller.readSubjectFromFile(subjectFile);
-                    showInfoSubject(subjects);
+                    readers = controller.readReadersFromFile(readersFileName);
+                    showReaderInfo(readers);
                     break;
                 case 5:
-                    //B0: đọc ra danh sách student,subject,thông tin quản lý đăng kí
-                    students = controller.readStudentFromFile(studentFile);
-                    subjects = controller.readSubjectFromFile(subjectFile);
-                    studentRegisters = controller.readStudentRegisterFromFile(studentRegisterFile);
-                    // B1: chọn một student từ danh sách đẻ cho phép đăng kí.Nếu đã đăng kí đủ số môn(>=8)
-                    // thì không cho đăng kí nữa
-                    int studentID;
-                    boolean isRegister = false;
+                    // đọc các thông tin trong danh sách bạn đọc, sách và quản lý mượn
+                    readers = controller.readReadersFromFile(readersFileName);
+                    books = controller.readBooksFromFile(booksFileName);
+                    brms = controller.readBRMsFromFile(BrmsFileName);
+
+                    // Chọn một bạn đọc, thực hiện chức năng cho mượn
+
+                    int readerID;
+                    boolean isBorrowalbe = false;
 
                     do {
-                        showInfoStudent(students);
-                        System.out.println("Please fill student's ID, put 0 to exit: ");
-                        studentID = scanner.nextInt();
-                        if (studentID == 0) {
+                        showReaderInfo(readers);
+                        System.out.println("_________________________________");
+                        System.out.println("Nhập mã bạn đọc,nhập 0 để bỏ qua:");
+                        readerID = scanner.nextInt();
+                        if (readerID == 0) { // tất cả bạn đọc đã mượn sách theo quy định
                             break;
                         }
-                        // hàm kiểm tra xem sinh viên đó đã vượt mức đăng kí 8 môn chưa
-                        isRegister = checkRegister(studentRegisters, studentID);
-                        if (isRegister) {
+                        isBorrowalbe = checkBorrowed(brms, readerID);
+                        if (isBorrowalbe) {
                             break;
                         } else {
-                            System.out.println("You regist over too many subjects!");
+                            System.out.println("Bạn đã mượn quá số lượng cho phép!");
                         }
                     } while (true);
-                    //      B2: chọn một subject từ danh sách , nếu môn đó đã đăng kí rồi thì không đăng kí được,
-                    //      yêu cầu đăng kí môn khác
-                    showInfoSubject(subjects);
-                    int subjectID;
-                    boolean isAlreadyRegist = false;
-                    int totalofSubject;
-                    do {
-                        System.out.println("Please fill subject's ID, you may put 0 to exit");
-                        subjectID = scanner.nextInt();
-                        totalofSubject = gettotalofSubjects(studentRegisters, studentID, subjectID);
-                        if (subjectID == 0) {
-                            break;
-                        }
-                        isAlreadyRegist = checkAlreadyRegist(studentRegisters, subjectID);
-                        if (isAlreadyRegist) {
-                            System.out.println("You already regist this subject! Please fill another to regist " +
-                                    "other subject!");
-                        } else {
-                            totalofSubject++;
-                            break;
-                        }
 
+
+                    // chọn một đầu sách cho bạn đọc mượn
+
+                    int booksID;
+                    boolean isFull = false;
+                    do {
+                        showBookInfo(books);
+                        System.out.println("__________________________________");
+                        System.out.println("Nhập mã sách, nhập 0 để bỏ qua:");
+                        booksID = scanner.nextInt();
+                        if (booksID == 0) {
+                            break;
+                        }
+                        isFull = checkFull(brms, readerID, booksID); // true nếu đã mượn đủ 3
+                        if (isFull) {
+                            System.out.println("Vui lòng chọn đầu sách khác!");
+                        } else {
+                            break;
+                        }
+                    } while (true);
+
+                    // nếu được mượn tiếp thì cập nhập tình trạng sách
+                    int total = getTotal(brms, readerID, booksID);
+                    do {
+                        System.out.println("Nhập số lượng muốn mượn(đã mượn" + total + "): ");
+                        int x = scanner.nextInt();
+                        if (x + total >= 1 && x + total <= 3) { // thỏa mãn số lượng có thể mượn
+                            total += x;
+                            break;
+                        } else {
+                            System.out.println("Vượt quá số lượng cần mượn cho một đầu sách!" +
+                                    " Vui lòng mượn đầu sách khác");
+                        }
                     } while (true);
                     scanner.nextLine();
-                    Date date =new Date();
 
-                    System.out.println("Please fill the state: ");
-                    String state;
-                    state = scanner.nextLine();
+                    System.out.println("Nhập tình trạng: ");
+                    String status = "";
+                    status = scanner.nextLine();
 
+                    Book currentBook = getBook(books, booksID);
+                    Reader currentReader = getReader(readers, readerID);
+                    BookReaderManagement b = new BookReaderManagement(currentBook, currentReader,
+                            total, status, 0);
 
-                    Student currentStudent = getStudent(students, studentID);
-                    Subject currentSubject = getSubject(subjects, subjectID);
-                    StudentRegister studentRegister = new StudentRegister(currentStudent, currentSubject, date,
-                            totalofSubject, state);
+                    //B4:
+                    brms = Utility.updateBrms(brms, b); // cập nhật danh sách quản lý mượn
+                    controller.updateBRMFile(brms, BrmsFileName);// cập nhật file
 
-                    // cập nhật danh sách đăng kí
-                    studentRegisters= ultilityController.updateSRs(studentRegisters,studentRegister);
-                    controller.updateSrFile(studentRegisters,studentRegisterFile);
-
-                    // Hiển thị danh sách đăng kí
-                    showSrInfo(studentRegisters);
+                    //B5: Hiển thị ra màn hình
+                    showBrmInfo(brms);
                     break;
+
                 case 6:
-                    do{
-                        System.out.println("Sort list of Student Regist!");
-                        System.out.println("1. Sort by Student's Name: ");
-                        System.out.println("2. Sort by Time: ");
-                        System.out.println("0. Exit!");
-                        int choices;
-                        choices=scanner.nextInt();
-                        if(choices==0){
+                    brms = controller.readBRMsFromFile(BrmsFileName); // đọc ra danh sách quản lý
+                    // update tổng số lượng mượn
+                    brms = Utility.updateTotalBorrowed(brms);
+                    System.out.println("______________________________________");
+                    System.out.println("Các lựa chọn sắp xếp: ");
+                    int x = 0;
+                    do {
+                        System.out.println("1. Sắp xếp theo tên bạn đọc(từ A->Z: ");
+                        System.out.println("2. Sắp xếp theo tổng số lượng mượn(giảm dần): ");
+                        System.out.println("0. Trở lại menu:");
+                        System.out.println("Bạn chọn? ");
+                        x = scanner.nextInt();
+                        if (x == 0) {
                             break;
                         }
-                        switch (choices){
+                        switch (x) {
                             case 1:
-                                ultilityController.sortByStudentName(studentRegisters);
-                                showSrInfo(studentRegisters);
+                                brms= Utility.sortbyReaderName(brms);
+                                showBrmInfo(brms);
                                 break;
                             case 2:
-                                ultilityController.sortByTime(studentRegisters);
-                                showSrInfo(studentRegisters);
+                                brms=Utility.sortbyNumofBorrowed(brms);
+                                showBrmInfo(brms);
                                 break;
-
                         }
-                    }while (true);
+                    } while (true);
+                    break;
+                case 7: // tìm kiếm bạn đọc theo tên
+                    brms=controller.readBRMsFromFile(BrmsFileName);
+                    System.out.println("Nhập cụm từ có tên bạn đọc cần tìm: ");
+                    String key= scanner.nextLine();
+                    var  result =Utility.SearchByReaderName(brms,key);
+
+                    if(result.size()==0){
+                        System.out.println("Không tìm thấy bạn đọc!");
+                    }
+                    else{
+                        showBrmInfo(result);
+                    }
+                    System.out.println();
                     break;
             }
-
         } while (choice != 0);
-
     }
 
-    private static void showSrInfo(ArrayList<StudentRegister> studentRegisters) {
-        System.out.println("Info list of registion: ");
-        for(var s: studentRegisters){
-            System.out.println(s);
+    private static void showBrmInfo(ArrayList<BookReaderManagement> brms) {
+
+        for (var brm : brms) {
+            System.out.println(brm);
         }
     }
 
-    private static int gettotalofSubjects(ArrayList<StudentRegister> studentRegisters, int studentID, int subjectID) {
-        for (var s : studentRegisters) {
-            if (s.getStudent().getStudentID() == studentID && s.getSubject().getSubjectID() == subjectID) {
-                return s.getTotalOfSubject();
+    private static Reader getReader(ArrayList<Reader> readers, int readerID) {
+        for (int i = 0; i < readers.size(); i++) {
+            if (readers.get(i).getReaderID() == readerID) {
+                return readers.get(i);
+            }
+        }
+        return null;
+    }
+
+    private static Book getBook(ArrayList<Book> books, int booksID) {
+        for (int i = 0; i < books.size(); i++) {
+            if (books.get(i).getBookID() == booksID) {
+                return books.get(i);
+            }
+        }
+        return null;
+    }
+
+    private static int getTotal(ArrayList<BookReaderManagement> brms, int readerID, int booksID) {
+        for (var r : brms) {
+            if (r.getReader().getReaderID() == readerID && r.getBook().getBookID() == booksID) {
+                return r.getNumOfBorrow();  // lấy tổng số lượng sách đã mượn của đầu sách booksID
             }
         }
         return 0;
     }
 
-    private static Subject getSubject(ArrayList<Subject> subjects, int subjectID) {
-        for (int i = 0; i < subjects.size(); i++) {
-            if (subjects.get(i).getSubjectID() == subjectID) {
-                return subjects.get(i);
-            }
-        }
-        return null;
-    }
-
-    private static Student getStudent(ArrayList<Student> students, int studentID) {
-        for (int i = 0; i < students.size(); i++) {
-            if (students.get(i).getStudentID() == studentID) {
-                return students.get(i);
-            }
-        }
-        return null;
-    }
-
-    private static boolean checkAlreadyRegist(ArrayList<StudentRegister> studentRegisters, int subjectID) {
-        for (int i = 0; i < studentRegisters.size(); i++) {
-            if (studentRegisters.get(i).getSubject().getSubjectID() == subjectID &&
-                    studentRegisters.get(i).getState().toLowerCase() == "regist") {
-                return true;
+    private static boolean  checkFull(ArrayList<BookReaderManagement> brms, int readerID, int booksID) {
+        for (var r : brms) {
+            if (r.getReader().getReaderID() == readerID && r.getBook().getBookID() == booksID
+                    && r.getNumOfBorrow() == 3) {
+                return true; // nếu bạn đọc mượn một đầu sách tối đa đến 3 lần thì không được mượn nữa
             }
         }
         return false;
     }
 
-    private static boolean checkRegister(ArrayList<StudentRegister> studentRegisters, int studentID) {
+    private static boolean checkBorrowed(ArrayList<BookReaderManagement> brms, int readerID) {
         int count = 0;
-        for (var s : studentRegisters) {
-            if (s.getStudent().getStudentID() == studentID) {
-                count += s.getTotalOfSubject();
+        for (var r : brms) {
+            if (r.getReader().getReaderID() == readerID) {
+                count += r.getNumOfBorrow();
             }
         }
-        if (count > 8) {
+        if (count == 15) {
             return false;
         }
         return true;
     }
 
+    private static void showReaderInfo(ArrayList<Reader> readers) {
+        System.out.println("_________________Thông tin readers trong file_________________");
+        for (var r : readers) {
+            System.out.println(r);
+        }
 
-    private static void showInfoSubject(ArrayList<Subject> subjects) {
-        System.out.println("Info of list of subjects: ");
-        for (var s : subjects) {
-            System.out.println(s);
+    }
+
+    private static void checkReaderID(DataController controller, String readersFileName) {
+        var readers = controller.readReadersFromFile(readersFileName);
+        if (readers.size() == 0) {
+
+        } else {
+            Reader.setId(readers.get(readers.size() - 1).getReaderID() + 1);
         }
     }
 
-    private static void showInfoStudent(ArrayList<Student> students) {
-        System.out.println("Info of list of students: ");
-        for (var s : students) {
-            System.out.println(s);
+    private static void checkBookID(DataController controller, String fileName) {
+        var listBooks = controller.readBooksFromFile(fileName);
+        if (listBooks.size() == 0) {
+
+        } else {
+            Book.setId(listBooks.get(listBooks.size() - 1).getBookID() + 1);
         }
     }
 
-    /*
-        Viết menu thực hành chức năng thứ 5:
-        B0: đọc ra danh sách student,subject,thông tin quản lý đăng kí
-        B1: chọn một student từ danh sách đẻ cho phép đăng kí.Nếu đã đăng kí đủ số môn(>=8) thì không cho đăng kí nữa
-        B2: chọn một subject từ danh sách , nếu môn đó đã đăng kí rồi thì không đăng kí được, yêu cầu đăng kí môn khác
-        hoặc bỏ đăng kí môn đó
-        B3: Nếu được đăng kí tiếp thì thực hiện đăng kí, tình trạng đăng kí
-        B4: cập nhật lại file quản lý
-        B5: In ra màn hình
-     */
+    private static void showBookInfo(ArrayList<Book> books) {
+        System.out.println("_________________Thông tin sách trong file_________________");
+        for (var b : books) {
+            System.out.println(b);
+        }
+
+    }
 }
